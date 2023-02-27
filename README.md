@@ -3,8 +3,10 @@
 ## Creating a library in C and calling it in a different file
 ### Creating the library file
 ```
-touch library.c 
-
+touch library.c
+touch library.h
+```
+```
 // library.c
 
 #include "library.h"
