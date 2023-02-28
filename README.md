@@ -35,8 +35,10 @@ ar rcs liblibrary.a library.o
 ### Create executable C file
 ```
 gcc -o main main.c -L. -llibrary
-avr-gcc -mmcu=atmega32 -Wall -Os -o main.elf main.c -std=c99 # compile to elf
-avr-objcopy -j .text -j .data -O ihex main.elf main.hex # compile to hex
+# compile to elf
+avr-gcc -mmcu=atmega32 -Wall -Os -o main.elf main.c -std=c99 
+# compile to hex
+avr-objcopy -j .text -j .data -O ihex main.elf main.hex 
 ```
 ### Run the executable
 ```
