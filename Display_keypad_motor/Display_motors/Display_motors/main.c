@@ -16,6 +16,9 @@
 #include <string.h>
 #include <math.h>
 #include "keypad.h"
+#include "motor.h"
+#include <stdlib.h>
+
 
 
 
@@ -23,15 +26,14 @@ int main(void)
 {
     // Initialize the LCD
     LCD_Init();
+    ADC_Init(); // Initialize ADC
+    PWM_init(); // Initialize PWM
+    LCD_String("THE MATRIX!!");
+    // Read the data from the keypad
+    // int value = read_keypad();
+
     while (1) 
     {
-        // Read the data from the keypad
-        int value = read_keypad();
-        // Display the data on the LCD
-        LCD_String("Value: ");
-        char str[10];
-        sprintf(str, "%d", value);
-        LCD_String(str);
+        read_keypad();
     }
 }
-
