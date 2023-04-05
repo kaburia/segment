@@ -42,4 +42,63 @@ void DC_Motor(void)
 	LCD_String(itoa(duty_cycle, buffer, 10));
 }
 
+// Encoder Motor
+/*Interrupt setup function*/
+void interrupt_setup(){
+    DDRB = 0xFF; // Make PORTB as output Port
+    DDRB &= ~(1<<PB2); // Make INT2 pin as Input
+    DDRB |= (1<<PB3); // Make OC0 pin as Output
+    DDRD &= ~(1<<PD2); // Make INT0 pin as Input
+    DDRD &= ~(1<<PD3); // Make INT0 pin as Input
+    GICR = (1<<INT2)|(1<<INT1)|(1<<INT0); // Enable INT0, INT2
+    MCUCR = (1<<ISC00)|(1<<ISC10); // Trigger INT0 on Logic change trigger
+    MCUCSR = (1<<ISC2);// Trigger INT2 on Rising Edge triggered
+    sei(); // Enable Global Interrupt */
+}
+
+/* Interrupt ISR functions */
+ISR(INT0_vect){
+    cur_encode = PIND & ((1<<PD2)|(1<<PD3));
+    cur_encode = (cur_encode>>2);
+    // From the encoder value chart, when Channel A changes logic states we look
+    // at the value of the interrupt pins. If they are either 0b 11 or 0b 00,
+    // the motor is moving CW and we decrease the count
+    if(cur_encode == 0x03 || cur_encode == 0x00){
+    count-=1;
+    }
+    // If they are either 0b 10 or 0b 01, the motor is moving CCW and we increase the count
+    else if(cur_encode == 0x02 || cur_encode == 0x01){
+    count+=1 ;
+    }
+}
+
+ISR(INT1_vect){
+    cur_encode = PIND & ((1<<PD2)|(1<<PD3)); // Obtain the reading from the PIND2 and PIND3
+    cur_encode = (cur_encode>>2);
+    // From the encoder value chart, when Channel B changes logic states we look
+    // at the value of the interrupt pins. If they are either 0b 01 or 0b 10,
+    // the motor is moving CW and we decrease the count
+    if(cur_encode == 0x01 || cur_encode == 0x02){
+    count-=1;
+    }
+    // If they are either 0b 11 or 0b 00, the motor is moving CCW and we increase the count
+    else if(cur_encode == 0x03 || cur_encode == 0x00){
+    count+=1;
+    }
+}
+
+/*Timer setup function*/
+void timer_setup(){
+    TIMSK |= (1<<TOIE1); // Activate the timer overflow interrupt
+    TCCR1B = (1<<CS11)|(1<<CS10); // Set the timer prescalar to 64
+    TCNT1 = 3036; // Load the countdown value for 500ms
+}
+/*Timer overflow ISR*/
+ISR(TIMER1_OVF_vect){
+    cur_count = count;
+    RPM = (cur_count-prev_count)*120/(96); // Calculate the RPMs
+    prev_count = cur_count;
+    TCNT1 = 3036;
+}
+
 #endif /* motor_H_ */

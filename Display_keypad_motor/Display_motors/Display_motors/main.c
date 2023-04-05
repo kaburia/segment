@@ -21,13 +21,14 @@
 
 
 
-
 int main(void)
 {
     // Initialize the LCD
     LCD_Init();
     ADC_Init(); // Initialize ADC
     PWM_init(); // Initialize PWM
+    interrupt_setup(); // Initialize interrupts
+    timer_setup(); // Initialize timer
     LCD_String("THE MATRIX!!");
     // Read the data from the keypad
     // int value = read_keypad();
